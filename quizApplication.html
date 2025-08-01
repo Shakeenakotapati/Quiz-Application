@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Application</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .quiz-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+        }
+        .question {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        .options {
+            margin-left: 20px;
+        }
+        .option {
+            margin: 10px 0;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 5px;
+        }
+        .option:hover {
+            background-color: #e0e0e0;
+        }
+        button {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-top: 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #27ae60;
+        }
+        .result {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        .selected {
+            background-color: #3498db;
+            color: white;
+        }
+        .correct {
+            background-color: #2ecc71;
+            color: white;
+        }
+        .incorrect {
+            background-color: #e74c3c;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <h1>Quiz Application</h1>
+        <div id="quiz"></div>
+        <button id="submit">Submit Quiz</button>
+        <div id="result" class="result"></div>
+    </div>
+
+    <script>
+        const quizData = [
+            {
+                question: "What is the capital of France?",
+                options: ["London", "Paris", "Berlin", "Madrid"],
+                answer: "Paris"
+            },
+            {
+                question: "Which planet is known as the Red Planet?",
+                options: ["Venus", "Mars", "Jupiter", "Saturn"],
+                answer: "Mars"
+            },
+            {
+                question: "What is 2 + 2?",
+                options: ["3", "4", "5", "6"],
+                answer: "4"
+            }
+        ];
+
+        const quizContainer = document.getElementById('quiz');
+        const resultContainer = document.getElementById('result');
+        const submitButton = document.getElementById('submit');
+        let selectedOptions = [];
+
+        function buildQuiz() {
+            quizData.forEach((question, index) => {
+                const questionElement = document.createElement('div');
+                questionElement.classList.add('question');
+                questionElement.innerHTML = `<h3>${index + 1}. ${question.question}</h3>`;
+                
+                const optionsElement = document.createElement('div');
+                optionsElement.classList.add('options');
+                
+                question.options.forEach((option, optionIndex) => {
+                    const optionElement = document.createElement('div');
+                    optionElement.classList.add('option');
+                    optionElement.textContent = option;
+                    optionElement.addEventListener('click', () => selectOption(index, optionIndex));
+                    optionsElement.appendChild(optionElement);
+                });
+                
+                questionElement.appendChild(optionsElement);
+                quizContainer.appendChild(questionElement);
+            });
+        }
+
+        function selectOption(questionIndex, optionIndex) {
+            // Remove selected class from all options in this question
+            const options = quizContainer.querySelectorAll('.question')[questionIndex]
+                .querySelectorAll('.option');
+            options.forEach(option => option.classList.remove('selected'));
+            
+            // Add selected class to clicked option
+            options[optionIndex].classList.add('selected');
+            
+            // Store selected answer
+            selectedOptions[questionIndex] = quizData[questionIndex].options[optionIndex];
+        }
+
+        function showResults() {
+            let score = 0;
+            
+            // Check answers and highlight
+            quizData.forEach((question, index) => {
+                const options = quizContainer.querySelectorAll('.question')[index]
+                    .querySelectorAll('.option');
+                
+                if (selectedOptions[index] === question.answer) {
+                    score++;
+                    options[quizData[index].options.indexOf(selectedOptions[index])].classList.add('correct');
+                } else if (selectedOptions[index]) {
+                    options[quizData[index].options.indexOf(selectedOptions[index])].classList.add('incorrect');
+                }
+                
+                // Highlight correct answer
+                options[quizData[index].options.indexOf(question.answer)].classList.add('correct');
+            });
+            
+            // Show result
+            const percentage = (score / quizData.length * 100).toFixed(2);
+            resultContainer.innerHTML = `
+                <h2>Quiz Completed!</h2>
+                <p>Your score: ${score} out of ${quizData.length}</p>
+                <p>Percentage: ${percentage}%</p>
+                <p>${percentage >= 70 ? 'Excellent performance!' : percentage >= 50 ? 'Good attempt!' : 'Keep practicing!'}</p>
+            `;
+            resultContainer.style.display = 'block';
+        }
+
+        buildQuiz();
+
+        submitButton.addEventListener('click', showResults);
+    </script>
+</body>
+</html>
